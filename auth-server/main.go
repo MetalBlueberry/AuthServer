@@ -96,9 +96,8 @@ func loginGETHandler(w http.ResponseWriter, r *http.Request) {
 	case claims != nil:
 		pages.ExecuteTemplate(w, "logout.tmpl", claims)
 	default:
-		pages.ExecuteTemplate(w, "login.tmpl", claims)
+		pages.ExecuteTemplate(w, "login.tmpl", nil)
 	}
-
 }
 
 func loginUser(username string, password string) *UserData {
