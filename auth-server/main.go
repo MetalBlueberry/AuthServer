@@ -134,11 +134,10 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 
 func getSession(r *http.Request) (*Claims, error) {
 	c, err := r.Cookie("token")
-	switch err {
-	case http.ErrNoCookie:
+	switch {
+	case err == http.ErrNoCookie:
 		return nil, nil
-	case nil:
-	default:
+	case err != nil:
 		return nil, fmt.Errorf("Could not get token cookie. cause %w", err)
 	}
 
@@ -148,16 +147,14 @@ func getSession(r *http.Request) (*Claims, error) {
 	tkn, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
 	})
-	switch err {
-	case jwt.ErrSignatureInvalid:
+	switch {
+	case err == jwt.ErrSignatureInvalid:
 		return nil, nil
-	case nil:
-	default:
+	case err != nil:
 		return nil, fmt.Errorf("Could not parse jwt, cause %w", err)
+	case !tkn.Valid:
+		return nil, nil
 	}
 
-	if !tkn.Valid {
-		return nil, nil
-	}
 	return claims, nil
 }
