@@ -89,15 +89,16 @@ func loginGETHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	var templateName string
-	if claims == nil {
-		templateName = "login.tmpl"
-	} else {
-		templateName = "logout.tmpl"
-	}
 
 	pages := template.Must(template.ParseGlob("templates/*.tmpl"))
-	pages.ExecuteTemplate(w, templateName, claims)
+
+	switch {
+	case claims != nil:
+		pages.ExecuteTemplate(w, "logout.tmpl", claims)
+	default:
+		pages.ExecuteTemplate(w, "login.tmpl", claims)
+	}
+
 }
 
 func loginUser(username string, password string) *UserData {
